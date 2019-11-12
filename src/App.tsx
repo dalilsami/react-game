@@ -1,74 +1,27 @@
 import React, { useEffect, useState, useRef } from "react"
 import * as THREE from "three"
-import { tsMethodSignature } from "@babel/types"
-import { string } from "prop-types"
 
-enum Direction {
-  Forward = "forward",
-  Back = "back",
-  Left = "left",
-  Right = "right"
-}
-
-class Player {
-  static inputMap: object = {
-    "KeyW": Direction.Forward,
-    "KeyS": Direction.Back,
-    "KeyA": Direction.Left,
-    "KeyD": Direction.Right
-  }
-
-  constructor(speed: number = 5) {
-    this.speed = speed
-    this.camera.position.z = 5
-    this.bindInputs()
-  }
-
-  private speed: number
-
-  camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  )
-
-  private bindInputs = () : void => {
-    window.addEventListener("keydown", e => {
-      const direction: string = Player.inputMap[e.code]
-
-      console.log(e, direction, direction in Direction)
-      if (direction in Direction) {
-        this.move(direction as Direction)
-      }
-    })
-  }
-
-  private move = (direction: Direction) : void => {
-    if (direction === Direction.Left || direction === Direction.Right) {
-      console.log(this.speed)
-      this.camera.position.x += (direction === Direction.Left ? 1 : -1) * this.speed
-    } else {
-      this.camera.position.z += (direction === Direction.Forward ? 1 : -1) * this.speed
-    }
-  }
-}
+import Player from "./Classes/Player"
 
 const App : React.FC = () => {
   const el: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
   const scene: THREE.Scene = new THREE.Scene()
   const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer()
-  let player: Player
+  const player: Player = new Player()
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  )
   let cube: THREE.Mesh
   let requestID: number
 
+  player.add(camera)
+  scene.add(player)
   renderer.setSize(window.innerWidth, window.innerHeight)
-  const createScene = () => {
-    if (el.current) {
-      el.current.appendChild(renderer.domElement)
-      player = new Player()
-    }
-  }
+
+  const createScene = () => el.current && el.current.appendChild(renderer.domElement)
 
   const addObjects = () => {
     const geometry = new THREE.BoxGeometry(2, 2, 2)
@@ -96,7 +49,8 @@ const App : React.FC = () => {
 
   const animate = () => {
     requestID = window.requestAnimationFrame(animate)
-    renderer.render(scene, player.camera)
+    player.update()
+    renderer.render(scene, camera)
   }
 
   useEffect(() => {

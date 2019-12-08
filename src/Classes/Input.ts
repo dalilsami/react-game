@@ -21,7 +21,11 @@ export type EventCode = KeyCode | MouseAxis
 
 type InputMap<T> = { [key in EventCode]?: T }
 
-const Values: InputMap<State | number | number[]> = {}
+const Values: InputMap<State | number | number[]> = {
+  [MouseAxis.X]: 0,
+  [MouseAxis.Y]: 0,
+  [MouseAxis.Both]: [0, 0],
+}
 
 const Timeouts: InputMap<number | undefined> = {}
 

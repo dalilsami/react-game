@@ -31,18 +31,21 @@ class Player extends THREE.Object3D {
   }
   
   public update = () => {
-    const movementX = Input.GetMouse(Input.MouseAxis.X) as number
-    const movementY = Input.GetMouse(Input.MouseAxis.Y) as number
+    const [movementX, movementY] = Input
+      .GetMouse(Input.MouseAxis.Both) as number[]
 
-    if (movementX) {
-      this.quaternion.y -= movementX * this.sensitivity
+    if (movementX || movementY) {
+      if (movementX) {
+        this.rotateY(-movementX * this.sensitivity)
+      }
+      if (movementY) {
+        this.rotateX(-movementY * this.sensitivity)
+      }
+      this.rotation.z = 0;
     }
-    if (movementY) {
-      this.quaternion.x -= movementY * this.sensitivity
-    }
-    for (let key in Player.Inputs) {
+    for (let key in this.inputs) {
       if (Input.GetKey(Input.State.KeyDown, key as Input.KeyCode)) {
-        this.inputActions[Player.Inputs[key as Input.KeyCode]]()
+        this.inputActions[this.inputs[key as Input.KeyCode]]()
       }
     }
   }
